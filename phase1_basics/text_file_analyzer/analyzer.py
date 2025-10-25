@@ -1,30 +1,43 @@
-import string 
-filename = input("please enter the file name: ")
-sentences = 0 
-paragraphs = 0
-with open(filename,'r') as f:
-    text = f.read()
+from collections import Counter
+class TextAnalyzer():
+    characters_to_remove = ".!,?"
+    stopwords = ["the", "is", "in", "and", "to", "a", "of" , "it","this"]
+    def __init__ (self, text,filter_choice):
+        self.unprocessed_text = text
+        # make text lowercase
+        processed_text = text.lower()
+        # remove punctuation
+        for char in self.characters_to_remove:
+            processed_text = processed_text.replace(char,"")
+        self.fmtText = processed_text
+        self.filter_choice = filter_choice
+        
+        self.freq_Dict = self.freqAll() ## compute frequency dictionary once during initialization
 
+        
+    def freqAll(self):        
+        # split text into words
+        word_list = self.fmtText.split()
+        word_counts = Counter(word_list)
+        if self.filter_choice == 'n':
+            return dict(word_counts)
+        else:
+            frequency_dict = {word: count for word, count in word_counts.items() if word not in self.stopwords}
+            return frequency_dict
+        
 
-# first we clean the text from punctuation and lowercase everything and split the text by space 
-
-for char in text:
-    if char in ".!?":
-        sentences+=1
-
-paragraphs = text.split("\n\n")
-paragraphs = [p for p in paragraphs if p.strip() != ""]
-paragraph_count = len(paragraphs)
-
-
-
-text = text.lower()
-for char in string.punctuation:
-    text = text.replace(char,"") #remove punctuation 
-
-words = len(text.split())
-
-print(words)
-print(sentences)
-print(paragraph_count)
-
+           
+    def freqOf(self,word):
+        freqDict = self.freqAll()
+        if word in freqDict:
+            return freqDict[word]
+        else:
+            return 0
+        
+    def countSentences(self):
+        sentences = self.unprocessed_text.split('.')
+        return len([s for s in sentences if s.strip()]) # count non-empty sentences only
+    
+    def countParagraphs(self):
+        paragraphs = self.fmtText.split('\n\n')
+        return len([p for p in paragraphs if p.strip()]) # count non-empty paragraphs only
